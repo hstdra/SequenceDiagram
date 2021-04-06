@@ -1,5 +1,5 @@
+title Realtime Notification
 actor User
-
 
 participantgroup **Front-end**
 fontawesome f108 "User Screen" as Screen

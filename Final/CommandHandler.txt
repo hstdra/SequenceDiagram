@@ -1,3 +1,4 @@
+title Command Handler (Without Command queue)
 actor User
 
 participantgroup **Front-end**
@@ -28,12 +29,14 @@ opt
 Microservice->TPS:Make additional operators
 Microservice<--TPS:Succefully
 end
-opt
 region Database transaction
-Microservice->DB:Make Insert/Update/Delete commands
+Microservice->DB:Insert/Update/Delete records
 Microservice<--DB:Command successfully
-deactivate Microservice
+opt
+Microservice->DB:Insert messages to __OutboxMessages
+Microservice<--DB:Insert successfully
 end
+deactivate Microservice
 end
 Screen<--Microservice:Response ACCEPTED with ID
 User<--Screen:Command successfully

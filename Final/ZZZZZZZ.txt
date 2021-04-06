@@ -1,4 +1,3 @@
-title Command Handler (With Command Queue)
 actor User
 
 participantgroup **Front-end**
@@ -12,6 +11,7 @@ participant "Third-Party\nSystem" as TPS
 end
 
 participantgroup **Persistence\n **
+fontawesome f1c0 "Main Database" as DB
 fontawesome f233 "Kafka Broker" as Queue
 end
 
@@ -34,3 +34,19 @@ Microservice<--Queue:Return ack
 deactivate Microservice
 Screen<--Microservice:Response ACCEPTED with ID
 User<--Screen:Command successfully
+
+== Backgroud Job ==
+loop
+Microservice->Queue:Consume message from Command topic
+activate Microservice
+Microservice<--Queue:Return message
+region Database transaction
+Microservice->DB:Insert/Update/Delete records
+Microservice<--DB:Command successfully
+opt
+Microservice->DB:Insert messages to __OutboxMessages
+Microservice<--DB:Insert successfully
+deactivate Microservice
+end
+end
+end

@@ -1,3 +1,5 @@
+title Query Handler
+
 actor User
 
 participantgroup **Front-end**

@@ -1,0 +1,37 @@
+title Command Queue Write To In-memory Cache
+
+participantgroup **Back-end\n **
+participant "Microservice" as Microservice
+fontawesome f0a0 "In-memory Cache" as Memory
+end 
+
+participantgroup **Persistence**
+fontawesome f1c0 "Database" as DB
+fontawesome f233 "Kafka Broker" as Queue
+end
+
+autoactivation on
+
+
+Microservice->DB:Consume latest committed-offsets __PartitionStates table
+Microservice<--DB:Return latest committed-offsets
+Microservice->Microservice:Create command consumer from committed-offsets
+space
+deactivate Microservice
+
+loop 
+Microservice->Queue:Consume message from Command topic
+activate Microservice
+Microservice<--Queue:Return message
+region In-memory database transaction
+Microservice->Memory:Insert/Update/Delete records
+Microservice<--Memory:Command successfully
+opt
+Microservice->Memory:Insert messages to __OutboxMessages
+Microservice<--Memory:Insert successfully
+end
+Microservice->Memory:Update __PartitionStates table
+Microservice<--Memory:Update successfully
+deactivate Microservice
+end
+end

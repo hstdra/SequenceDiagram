@@ -1,3 +1,5 @@
+title Outbox Processor
+
 participantgroup **Back-end\n **
 participant "OutboxProcessor" as Processor
 end 

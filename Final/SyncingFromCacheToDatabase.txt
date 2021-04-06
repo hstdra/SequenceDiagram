@@ -1,6 +1,8 @@
+title Syncing from In-memmory Cache to Database
+
 participantgroup **Back-end\n **
 participant "Write Caching\nProcessor" as WCP
-fontawesome f0a0 "In-memory Database" as Memory
+fontawesome f0a0 "In-memory Cache" as Memory
 end 
 
 participantgroup **Persistence**
