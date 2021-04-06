@@ -1,0 +1,25 @@
+participantgroup **Back-end\n **
+participant "RV\nMicroservice" as RVM
+fontawesome f0a0 "RV In-memory Database" as RVMemory
+end 
+
+participantgroup **Persistence**
+fontawesome f233 "Kafka Broker" as Queue
+end
+
+autoactivation on
+
+loop Infinity
+RVM->Queue:Consume MakeReservation message
+activate RVM
+RVM<--Queue:Return message
+region In-memory database transaction
+RVM->RVMemory:Insert to Reservations table
+RVM<--RVMemory:Insert successfully
+RVM->RVMemory:Insert ReservationCreated to __OutboxMessages
+RVM<--RVMemory:Insert successfully
+RVM->RVMemory:Update __PartitionStates table
+RVM<--RVMemory:Update successfully
+deactivate RVM
+end
+end

@@ -1,0 +1,23 @@
+participantgroup **Back-end\n **
+participant "Write Caching\nProcessor" as WCP
+fontawesome f0a0 "In-memory Database" as Memory
+end 
+
+participantgroup **Persistence**
+fontawesome f1c0 "Main Database" as DB
+end
+
+autoactivation on
+
+loop
+WCP->Memory:Read un-committed records
+activate WCP
+WCP<--Memory:Return un-committed records
+region Database transaction
+WCP->DB:Sync un-committed records to DB
+WCP<--DB:Sync succesfully
+end
+WCP->Memory:Commit synced records
+WCP<--Memory:Commit succesfully
+deactivate WCP
+end

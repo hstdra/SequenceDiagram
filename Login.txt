@@ -1,0 +1,41 @@
+actor User
+
+participantgroup **Front-end**
+fontawesome f108 "App UI" as UI
+end 
+
+participantgroup **Back-end**
+participant "\nUser Microservice\n" as UserM
+end 
+
+participantgroup **Data**
+fontawesome f1c0 "User DB" as DB
+end
+
+User->UI:Send login request
+
+activate UI
+UI->UserM:Call API /auth/login
+activate UserM
+UserM->DB:Validate login credential
+activate UserM
+activate DB
+DB-->UserM:Return result
+deactivate DB
+deactivate UserM
+
+alt Correct credential
+
+UI<--UserM:Response OK with token
+activate UI
+UI->UI:Go to main page
+deactivate UI
+User<--UI:Login successfully
+
+else Incorrect credential
+UI<--UserM:Response NotFound
+deactivate UserM
+User<--UI:Login failed
+deactivate UI
+
+end

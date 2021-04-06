@@ -1,0 +1,28 @@
+actor User
+
+
+participantgroup **Front-end**
+fontawesome f108 "User Screen" as Screen
+end 
+
+participantgroup **Back-end\n **
+participant "Notification\nMicroservice" as NotiM
+end 
+
+participantgroup **Persistence\n **
+fontawesome f233 "Kafka Broker" as Queue
+end
+
+autoactivation on
+
+
+loop
+NotiM->Queue:Consume event message
+activate NotiM
+NotiM<--Queue:Return message
+Screen<<-NotiM:Emit real-time event
+User<--Screen:Get notification
+NotiM->Queue:Commit message offset
+NotiM<--Queue:Commit successfully
+deactivate NotiM
+end

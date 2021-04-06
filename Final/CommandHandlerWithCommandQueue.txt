@@ -1,0 +1,50 @@
+actor User
+
+participantgroup **Front-end**
+fontawesome f108 "User Screen" as Screen
+end
+
+participantgroup **Back-end\n **
+participant "Main\nMicroservice" as Microservice
+participant "Others\nMicroservice" as OthersMicroservice
+participant "Third-Party\nSystem" as TPS
+end
+
+participantgroup **Persistence\n **
+fontawesome f1c0 "Main Database" as DB
+fontawesome f233 "Kafka Broker" as Queue
+end
+
+autoactivation on
+
+
+User->Screen:Command
+Screen->Microservice:Request Command API
+Microservice->Microservice:Internal processing
+opt
+Microservice->OthersMicroservice:Make additional operators
+Microservice<--OthersMicroservice:Succefully
+end
+opt
+Microservice->TPS:Make additional operators
+Microservice<--TPS:Succefully
+end
+Microservice->Queue:Produce message to Command topic
+Microservice<--Queue:Return ack
+deactivate Microservice
+Screen<--Microservice:Response ACCEPTED with ID
+User<--Screen:Command successfully
+
+== Backgroud Job ==
+loop
+Microservice->Queue:Consume message from Command topic
+activate Microservice
+Microservice<--Queue:Return message
+opt
+region Database transaction
+Microservice->DB:Make Insert/Update/Delete commands
+Microservice<--DB:Command successfully
+deactivate Microservice
+end
+end
+end

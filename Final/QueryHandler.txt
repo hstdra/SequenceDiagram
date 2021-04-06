@@ -1,0 +1,37 @@
+actor User
+
+participantgroup **Front-end**
+fontawesome f108 "User Screen" as Screen
+end
+
+participantgroup **Back-end\n **
+participant "Main\nMicroservice" as Microservice
+participant "Others\nMicroservice" as OthersMicroservice
+participant "Third-Party\nSystem" as TPS
+end
+
+participantgroup **Persistence\n **
+fontawesome f1c0 "Main Database" as DB
+end
+
+autoactivation on
+
+
+User->Screen:Query something
+Screen->Microservice:Request GET API
+Microservice->Microservice:Internal processing
+opt
+Microservice->OthersMicroservice:Make additional operators
+Microservice<--OthersMicroservice:Succefully
+end
+opt
+Microservice->TPS:Make additional operators
+Microservice<--TPS:Succefully
+end
+opt
+Microservice->DB:Read data
+Microservice<--DB:Return data
+deactivate Microservice
+end
+Screen<--Microservice:Response OK with data
+User<--Screen:Query successfully

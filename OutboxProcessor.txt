@@ -1,0 +1,23 @@
+participantgroup **Back-end\n **
+participant "RV\nMicroservice" as RVM
+end 
+
+participantgroup **Persistence**
+fontawesome f1c0 "RV Database" as DB
+fontawesome f233 "Kafka" as Queue
+end
+
+autoactivation on
+
+loop Infinity
+region RV database transaction
+RVM->DB:Batch read un-send messages from __OutboxMessages
+activate RVM
+RVM<--DB:Return un-send messages
+RVM->Queue:Produce messages to topics
+RVM<--Queue:Return acknowledgment
+RVM->DB:Update status of messages to __OutboxMessages
+RVM<--DB:Update successfully
+deactivate RVM
+end
+end

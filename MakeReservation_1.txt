@@ -1,0 +1,26 @@
+actor Customer
+
+participantgroup **Front-end**
+fontawesome f108 "Customer Screen" as CustomerS
+end 
+
+participantgroup **Back-end\n **
+participant "RV\nMicroservice" as RVM
+participant "Store Search\nMicroservice" as StoreSM
+end 
+
+participantgroup **Persistence\n **
+fontawesome f233 "Kafka Broker" as Queue
+end
+
+autoactivation on
+Customer->CustomerS:Request a reservation
+CustomerS->RVM:POST MakeReservation API
+RVM->RVM:Internal validation
+RVM->StoreSM:Validate store information
+RVM<--StoreSM:Return validation result
+RVM->Queue:Produce MakeReservation command to Command.RV topic
+RVM<--Queue:Return acknowledgment
+deactivate RVM
+CustomerS<--RVM:Response ACCEPTED with ID
+Customer<--CustomerS:Make reservation\nsuccessfully with\nPENDING state

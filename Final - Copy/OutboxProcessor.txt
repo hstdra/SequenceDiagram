@@ -1,0 +1,23 @@
+participantgroup **Back-end\n **
+participant "OutboxProcessor" as Processor
+end 
+
+participantgroup **Persistence**
+fontawesome f1c0 "Database" as DB
+fontawesome f233 "Kafka" as Queue
+end
+
+autoactivation on
+
+loop 
+Processor->DB:Read un-send messages from __OutboxMessages
+activate Processor
+Processor<--DB:Return un-send messages
+Processor->Queue:Produce messages to topics
+Processor<--Queue:Return acknowledgment
+region Database transaction
+Processor->DB:Update status of messages to __OutboxMessages
+Processor<--DB:Update successfully
+deactivate Processor
+end
+end

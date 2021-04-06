@@ -1,0 +1,37 @@
+participantgroup **Back-end\n **
+participant "Microservice" as WCP
+participant "Command Consumer" as Consumer
+fontawesome f0a0 "In-memory Database" as Memory
+end 
+
+participantgroup **Persistence**
+fontawesome f1c0 "Database" as DB
+fontawesome f233 "Kafka Broker" as Queue
+end
+
+autoactivation on
+
+
+WCP->DB:Consume lastest committed-offsets __PartitionStates table
+activate WCP
+WCP<--DB:Return lastest committed-offsets
+WCP->Consumer:Create command consumer from committed-offsets
+WCP<--Consumer:Consumer created
+deactivate WCP
+
+loop Infinity
+Consumer->Queue:Consume message from Command topic
+activate Consumer
+Consumer<--Queue:Return message
+region In-memory database transaction
+Consumer->Memory:Insert/update/delete records to table
+Consumer<--Memory:Command successfully
+opt
+Consumer->Memory:Insert messages to __OutboxMessages
+Consumer<--Memory:Insert successfully
+end
+Consumer->Memory:Update __PartitionStates table
+Consumer<--Memory:Update successfully
+deactivate Consumer
+end
+end
